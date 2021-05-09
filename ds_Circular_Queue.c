@@ -8,8 +8,11 @@
 
 #define QUEUE_SIZE 10 // 인덱스 범위: 0~9
 
-int queue[QUEUE_SIZE] = {0};
-int front = 0, rear = 0; // 큐의 처음과 끝 위치를 가리키는 인덱스 (초기화)
+typedef struct
+{
+    int queue[QUEUE_SIZE];
+    int front, rear; // 큐의 처음과 끝 위치를 가리키는 인덱스 (초기화)
+} Queue;
 
 // 이슈 1에 대한 해결
 int NextPosition(int pos)
@@ -23,51 +26,72 @@ int NextPosition(int pos)
     //		return pos + 1;
 }
 
-void EnQueue(int data)
+void QueueInit(Queue *q)
 {
-    if (NextPosition(rear) == front)
+    q->front = 0;
+    q->rear = 0;
+}
+
+void EnQueue(Queue *q, int data)
+{
+    if (NextPosition(q->rear) == q->front)
     { // 꽉 찼을 경우
         printf("큐에 데이터가 꽉참\n");
     }
     else
     { // 꽉 차지 않은 경우
-        queue[rear] = data;
-        rear = NextPosition(rear);
+        q->rear = NextPosition(q->rear);
+        q->queue[q->rear] = data;
         // 함수를 사용하지 않은 경우
         //rear = (rear + 1) % QUEUE_SIZE;
     }
 }
 
-int DeQueue()
+int DeQueue(Queue *q)
 {
-    if (front == rear)
+    if (q->front == q->rear)
     {
         printf("큐에 꺼낼 데이터가 없음\n");
         exit(-1);
     }
     else
     {
-        int dequeueData = queue[front];
-        front = NextPosition(front);
+        q->front = NextPosition(q->front);
+        int dequeueData = q->queue[q->front];
         return dequeueData;
+    }
+}
+
+int QueuePeek(Queue *q)
+{
+    if (q->front == q->rear)
+    {
+        printf("큐에 꺼낼 데이터가 없음\n");
+        exit(-1);
+    }
+    else
+    {
+        return q->queue[NextPosition(q->front)];
     }
 }
 
 int main()
 {
-    EnQueue(1);
-    EnQueue(2);
-    EnQueue(3);
-    EnQueue(4);
-    EnQueue(5);
-    EnQueue(6);
-    EnQueue(7);
-    EnQueue(8);
-    EnQueue(9);
-    EnQueue(10);
-    EnQueue(11);
-    EnQueue(12);
-    printf("%d\n", DeQueue());
-    printf("%d\n", DeQueue());
-    printf("%d\n", DeQueue());
+    Queue myQueue, queue23, gsmQueue;
+    QueueInit(&myQueue); // myQueue->front = 0; myQueue->rear = 0;
+    QueueInit(&queue23); // 초기화
+
+    EnQueue(&myQueue, 1);
+    EnQueue(&queue23, 2);
+    EnQueue(&myQueue, 3);
+    EnQueue(&queue23, 5);
+
+    printf("myQueue에서 DeQueue: %d\n", DeQueue(&myQueue));
+    printf("queue23에서 DeQueue: %d\n", DeQueue(&queue23));
+
+    printf("myQueue에서 QueuePeek: %d\n", QueuePeek(&myQueue));
+    printf("queue23에서 QueuePeek: %d\n", QueuePeek(&queue23));
+
+    printf("myQueue에서 QueuePeek: %d\n", QueuePeek(&myQueue));
+    printf("queue23에서 QueuePeek: %d\n", QueuePeek(&queue23));
 }
